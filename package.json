@@ -2,6 +2,9 @@
     "name": "my-plans",
     "version": "0.0.0",
     "private": true,
+    "scripts": {
+        "check": "tsc"
+    },
     "devDependencies": {
         "typescript": "^7.0.2"
     }
