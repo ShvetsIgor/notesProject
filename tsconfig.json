@@ -1,7 +1,11 @@
 {
     "compilerOptions": {
         "strict": true,
-        "noEmit": true
+        "noEmit": true,
+        "module": "nodenext",
+        "allowImportingTsExtensions": true,
+        "erasableSyntaxOnly": true,
+        "verbatimModuleSyntax": true
     },
     "include": ["src"]
 }

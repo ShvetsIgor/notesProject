@@ -2,10 +2,20 @@
     "name": "my-plans",
     "version": "0.0.0",
     "private": true,
+    "type": "module",
     "scripts": {
-        "check": "tsc"
+        "check": "tsc",
+        "start": "node src/server.ts",
+        "test": "node --test src/app.test.ts"
     },
     "devDependencies": {
+        "@types/express": "^5.0.6",
+        "@types/node": "^24.13.3",
+        "@types/supertest": "^7.2.1",
+        "supertest": "^7.2.2",
         "typescript": "^7.0.2"
+    },
+    "dependencies": {
+        "express": "^5.2.1"
     }
 }
