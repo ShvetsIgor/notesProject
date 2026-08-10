@@ -1,3 +1,4 @@
 .agents/
 .learning/
 node_modules/
+.idea/
