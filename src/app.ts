@@ -14,6 +14,14 @@ app.get('/tasks', (_request, response) => {
 app.post('/tasks', (request, response) => {
     const { text, scheduledAt } = request.body;
 
+    if (typeof text !== 'string' || text.trim() === '') {
+        return response.status(400).json({error: 'text must be a non-empty string'});
+    }
+
+    if (typeof scheduledAt !== 'string' || scheduledAt.trim() === '') {
+        return response.status(400).json({ error: 'scheduledAt must be a non-empty string'})
+    }
+
     const task: Task = {
         id: randomUUID(),
         text,

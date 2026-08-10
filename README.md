@@ -11,7 +11,7 @@ A personal planner for notes and scheduled tasks.
 
 - `GET /tasks` returns an empty JSON array and does not show created tasks.
 - Tasks are stored in memory and are lost when the server restarts.
-- The server does not validate incoming data.
+- Both fields are checked only as non-empty strings, and `scheduledAt` is not validated as a real date.
 
 ## Current requirements:
 
@@ -26,8 +26,10 @@ A personal planner for notes and scheduled tasks.
 - `npm test` runs the integration tests.
 - `curl -i http://localhost:3050/tasks` sends a manual HTTP request.
 - `curl -i -X POST http://localhost:3050/tasks -H 'Content-Type: application/json' -d '{"text":"Buy milk","scheduledAt":"2026-08-10T09:00:00+03:00"}'` sends a manual HTTP request with the body of response.
+- `curl -i -X POST http://localhost:3050/tasks -H 'Content-Type: application/json' -d '{}'` sends a manual HTTP request that is rejected.
 
 ## Contracts:
 
 - `GET /tasks`, status: `200`, body: `[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
+- `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string

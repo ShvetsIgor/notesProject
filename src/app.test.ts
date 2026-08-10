@@ -34,3 +34,37 @@ test('POST /tasks creates a pending task', async () => {
         status: 'pending'
     });
 })
+
+test('POST /tasks rejects a request without text', async () => {
+    const response = await request(app).post('/tasks').send({
+        scheduledAt: '2026-08-08T18:00:00+03:00'
+    }).expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+})
+
+test('POST /tasks rejects a non-string text', async () => {
+    const response = await request(app).post('/tasks').send({
+        text: 123,
+        scheduledAt: '2026-08-08T18:00:00+03:00'
+    }).expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+})
+
+test('POST /tasks rejects a request without scheduledAt', async () => {
+    const response = await request(app).post('/tasks').send({
+        text: 'checking'
+    }).expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+})
+
+test('POST /tasks rejects a non-string scheduledAt', async () => {
+    const response = await request(app).post('/tasks').send({
+        text: 'checking',
+        scheduledAt: 123
+    }).expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+})
