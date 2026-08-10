@@ -27,6 +27,7 @@ A personal planner for notes and scheduled tasks.
 - `curl -i http://localhost:3050/tasks` sends a manual HTTP request.
 - `curl -i -X POST http://localhost:3050/tasks -H 'Content-Type: application/json' -d '{"text":"Buy milk","scheduledAt":"2026-08-10T09:00:00+03:00"}'` sends a manual HTTP request with the body of response.
 - `curl -i -X POST http://localhost:3050/tasks -H 'Content-Type: application/json' -d '{}'` sends a manual HTTP request that is rejected.
+- `requests.http` contains ready HTTP requests for the built-in HTTP client in WebStorm or the REST Client extension in VS Code.
 
 ## Contracts:
 

@@ -1,0 +1,17 @@
+### Get all tasks
+GET http://localhost:3050/tasks
+
+### Create a  task
+POST http://localhost:3050/tasks
+Content-Type: application/json
+
+{
+  "text": "Buy milk",
+  "scheduledAt": "2026-08-10T09:00:00+03:00"
+}
+
+### Reject a task without required fields
+POST http://localhost:3050/tasks
+Content-Type: application/json
+
+{}
