@@ -22,6 +22,10 @@ app.post('/tasks', (request, response) => {
         return response.status(400).json({ error: 'scheduledAt must be a non-empty string'})
     }
 
+    if (Number.isNaN(Date.parse(scheduledAt))) {
+        return response.status(400).json({error: 'scheduledAt must be a valid ISO 8601 date'})
+    }
+
     const task: Task = {
         id: randomUUID(),
         text,

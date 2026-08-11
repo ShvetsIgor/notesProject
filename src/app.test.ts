@@ -68,3 +68,12 @@ test('POST /tasks rejects a non-string scheduledAt', async () => {
 
     assert.equal(typeof response.body.error, 'string');
 })
+
+test('POST /tasks rejects an invalid scheduledAt', async () => {
+    const response = await request(app).post('/tasks').send({
+        text: 'checking',
+        scheduledAt: 'not-a-date'
+    }).expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+})

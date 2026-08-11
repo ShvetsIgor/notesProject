@@ -11,7 +11,8 @@ A personal planner for notes and scheduled tasks.
 
 - `GET /tasks` returns an empty JSON array and does not show created tasks.
 - Tasks are stored in memory and are lost when the server restarts.
-- Both fields are checked only as non-empty strings, and `scheduledAt` is not validated as a real date.
+- `text` is checked only as non-empty string.
+- `scheduledAt` is not required to be in the future, so past dates are accepted.
 
 ## Current requirements:
 
@@ -33,4 +34,4 @@ A personal planner for notes and scheduled tasks.
 
 - `GET /tasks`, status: `200`, body: `[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
-- `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string
+- `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string or is not a valid date
