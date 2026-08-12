@@ -4,14 +4,13 @@ A personal planner for notes and scheduled tasks.
 
 ## Current API:
 
-- `GET /tasks` returns an empty JSON array.
+- `GET /tasks` returns all created tasks.
 - `POST /tasks` returns a new task object.
 
 ## Current limitations:
 
-- `GET /tasks` returns an empty JSON array and does not show created tasks.
 - Tasks are stored in memory and are lost when the server restarts.
-- `text` is checked only as non-empty string.
+- `text` is checked only as a non-empty string.
 - `scheduledAt` is not required to be in the future, so past dates are accepted.
 
 ## Current requirements:
@@ -32,6 +31,6 @@ A personal planner for notes and scheduled tasks.
 
 ## Contracts:
 
-- `GET /tasks`, status: `200`, body: `[]`
+- `GET /tasks`, status: `200`, body: `Task[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
 - `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string or is not a valid date

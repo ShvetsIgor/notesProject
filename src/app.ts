@@ -1,44 +1,46 @@
 import express from 'express';
-import type { Task } from './task.ts';
-import { randomUUID } from 'node:crypto';
-
-export const app = express();
-
-app.use(express.json());
-
-const tasks: Task[] = [];
+import type {Task} from './task.ts';
+import {randomUUID} from 'node:crypto';
 
 function isNonEmptyString(value: unknown): value is string {
     return typeof value === 'string' && value.trim() !== ''
 }
 
-app.get('/tasks', (_request, response) => {
-    response.json([]);
-});
-app.post('/tasks', (request, response) => {
-    const { text, scheduledAt }: {text?: unknown, scheduledAt?: unknown} = request.body;
 
-    if (!isNonEmptyString(text)) {
-        return response.status(400).json({error: 'text must be a non-empty string'});
-    }
+export function createApp() {
 
-    if (!isNonEmptyString(scheduledAt)) {
-        return response.status(400).json({ error: 'scheduledAt must be a non-empty string'})
-    }
+    const app = express();
+    app.use(express.json());
+    const tasks: Task[] = [];
 
-    if (Number.isNaN(Date.parse(scheduledAt))) {
-        return response.status(400).json({error: 'scheduledAt must be a valid ISO 8601 date'})
-    }
+    app.get('/tasks', (_request, response) => {
+        response.json(tasks);
+    });
+    app.post('/tasks', (request, response) => {
+        const {text, scheduledAt}: { text?: unknown, scheduledAt?: unknown } = request.body;
 
-    const task: Task = {
-        id: randomUUID(),
-        text,
-        scheduledAt,
-        status: 'pending'
-    }
+        if (!isNonEmptyString(text)) {
+            return response.status(400).json({error: 'text must be a non-empty string'});
+        }
 
-    tasks.push(task);
+        if (!isNonEmptyString(scheduledAt)) {
+            return response.status(400).json({error: 'scheduledAt must be a non-empty string'})
+        }
 
-    response.status(201).json(task);
+        if (Number.isNaN(Date.parse(scheduledAt))) {
+            return response.status(400).json({error: 'scheduledAt must be a valid ISO 8601 date'})
+        }
 
-})
+        const task: Task = {
+            id: randomUUID(),
+            text,
+            scheduledAt,
+            status: 'pending'
+        }
+
+        tasks.push(task);
+        response.status(201).json(task);
+    })
+
+    return app;
+}

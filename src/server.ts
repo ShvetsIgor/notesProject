@@ -1,6 +1,8 @@
-import { app } from './app.ts';
+import { createApp } from './app.ts';
 
 const PORT = 3050;
+
+const app = createApp();
 
 app.listen(PORT, (error) => {
     if (error)
