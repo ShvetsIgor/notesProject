@@ -1,11 +1,7 @@
 import express from 'express';
 import type {Task} from './task.ts';
 import {randomUUID} from 'node:crypto';
-
-function isNonEmptyString(value: unknown): value is string {
-    return typeof value === 'string' && value.trim() !== ''
-}
-
+import { isNonEmptyString } from "./validation.ts";
 
 export function createApp() {
 
