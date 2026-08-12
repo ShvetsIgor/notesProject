@@ -8,17 +8,21 @@ app.use(express.json());
 
 const tasks: Task[] = [];
 
+function isNonEmptyString(value: unknown): value is string {
+    return typeof value === 'string' && value.trim() !== ''
+}
+
 app.get('/tasks', (_request, response) => {
     response.json([]);
 });
 app.post('/tasks', (request, response) => {
-    const { text, scheduledAt } = request.body;
+    const { text, scheduledAt }: {text?: unknown, scheduledAt?: unknown} = request.body;
 
-    if (typeof text !== 'string' || text.trim() === '') {
+    if (!isNonEmptyString(text)) {
         return response.status(400).json({error: 'text must be a non-empty string'});
     }
 
-    if (typeof scheduledAt !== 'string' || scheduledAt.trim() === '') {
+    if (!isNonEmptyString(scheduledAt)) {
         return response.status(400).json({ error: 'scheduledAt must be a non-empty string'})
     }
 
