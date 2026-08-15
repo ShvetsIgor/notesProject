@@ -6,12 +6,14 @@ A personal planner for notes and scheduled tasks.
 
 - `GET /tasks` returns all created tasks.
 - `POST /tasks` returns a new task object.
+- `PATCH /tasks/:id` changes a task by id.
 
 ## Current limitations:
 
 - Tasks are stored in memory and are lost when the server restarts.
 - `text` is checked only as a non-empty string.
 - `scheduledAt` is not required to be in the future, so past dates are accepted.
+- `PATCH /tasks/:id` ignores the request body and always sets the status to `completed`.
 
 ## Current requirements:
 
@@ -28,9 +30,11 @@ A personal planner for notes and scheduled tasks.
 - `curl -i -X POST http://localhost:3050/tasks -H 'Content-Type: application/json' -d '{"text":"Buy milk","scheduledAt":"2026-08-10T09:00:00+03:00"}'` sends a manual HTTP request with the body of response.
 - `curl -i -X POST http://localhost:3050/tasks -H 'Content-Type: application/json' -d '{}'` sends a manual HTTP request that is rejected.
 - `requests.http` contains ready HTTP requests for the built-in HTTP client in WebStorm or the REST Client extension in VS Code.
-
+- `curl -i -X PATCH http://localhost:3050/tasks/:id -H 'Content-Type: application/json' -d {"text":"Buy milk","scheduledAt":"2026-08-10T09:00:00+03:00", status:"completed"}` sends a manual HTTP request .
 ## Contracts:
 
 - `GET /tasks`, status: `200`, body: `Task[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
 - `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string or is not a valid date
+- `PATCH /tasks/:id`, status: `200`, body: the updated task
+- `PATCH /tasks/:id`, status: `404`, body: `{ "error": string }` when no task has this id

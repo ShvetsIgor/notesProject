@@ -38,5 +38,18 @@ export function createApp() {
         response.status(201).json(task);
     })
 
+    app.patch('/tasks/:id', (request, response) => {
+        const {id} = request.params;
+
+        const task = tasks.find((task) => task.id === id);
+
+        if (!task) {
+            return response.status(404).json({error: 'task not found'});
+        }
+
+        task.status = 'completed';
+        response.json(task);
+    })
+
     return app;
 }

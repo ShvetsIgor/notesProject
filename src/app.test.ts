@@ -113,3 +113,29 @@ test('POST /tasks rejects an invalid scheduledAt', async () => {
 
     assert.equal(typeof response.body.error, 'string');
 })
+
+test('PATCH /tasks/:id marks a task as completed', async () => {
+    const app = createApp();
+
+    const created = await request(app).post('/tasks').send({
+        text: 'checking',
+        scheduledAt: '2026-08-08T18:00:00+03:00'
+    }).expect(201).expect('Content-Type', /json/);
+
+    const id = created.body.id;
+
+    const completed = await request(app).patch(`/tasks/${id}`).send({
+        status: 'completed',
+    }).expect(200).expect('Content-Type', /json/);
+
+    assert.equal(completed.body.status, 'completed')
+})
+
+test('PATCH /tasks/:id returns 404 for unknown id', async () => {
+
+    const app = createApp();
+
+    const created = await request(app).patch('/tasks/does-not-exist').expect(404).expect('Content-Type', /json/);
+
+    assert.equal(typeof created.body.error, 'string');
+})

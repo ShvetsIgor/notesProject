@@ -1,7 +1,7 @@
 ### Get all tasks
 GET http://localhost:3050/tasks
 
-### Create a  task
+### Create a task
 POST http://localhost:3050/tasks
 Content-Type: application/json
 
@@ -10,8 +10,18 @@ Content-Type: application/json
   "scheduledAt": "2026-08-10T09:00:00+03:00"
 }
 
+> {% client.global.set("taskId", response.body.id); %}
+
 ### Reject a task without required fields
 POST http://localhost:3050/tasks
 Content-Type: application/json
 
 {}
+
+### Change the task status
+PATCH http://localhost:3050/tasks/{{taskId}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
