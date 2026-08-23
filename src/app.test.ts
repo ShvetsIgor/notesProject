@@ -4,25 +4,30 @@ import request from 'supertest';
 import { createApp } from './app.ts';
 import type {Task} from './task.ts';
 
+const validTaskInput = {
+    text: 'checking',
+    scheduledAt: '2026-08-08T18:00:00+03:00'
+};
+
+const createTask = async (app: ReturnType<typeof createApp>, overrides = {}) => {
+    const created =  await request(app).post('/tasks')
+        .send({...validTaskInput, ...overrides})
+        .expect(201).expect('Content-Type', /json/);
+
+    return created.body;
+}
 
 test('GET /tasks returns created task', async () => {
 
     const app = createApp();
     const textOfCheck = 'checking';
-
-    const created = await request(app).post('/tasks').send({
-        text: textOfCheck,
-        scheduledAt: '2026-08-08T18:00:00+03:00'
-    }).expect(201).expect('Content-Type', /json/);
-
-    const createdId = created.body.id;
+    const created = await createTask(app);
 
     const response = await request(app).get('/tasks').expect('Content-Type', /json/).expect(200);
 
-    const found = response.body.find((task: Task) => task.id === createdId);
+    const found = response.body.find((task: Task) => task.id === created.id);
 
     assert.ok(found);
-
     assert.equal(found.text, textOfCheck);
 })
 
@@ -116,13 +121,8 @@ test('POST /tasks rejects an invalid scheduledAt', async () => {
 
 test('PATCH /tasks/:id marks a task as completed', async () => {
     const app = createApp();
-
-    const created = await request(app).post('/tasks').send({
-        text: 'checking',
-        scheduledAt: '2026-08-08T18:00:00+03:00'
-    }).expect(201).expect('Content-Type', /json/);
-
-    const id = created.body.id;
+    const created = await createTask(app);
+    const id = created.id;
 
     const completed = await request(app).patch(`/tasks/${id}`).send({
         status: 'completed',
@@ -135,22 +135,17 @@ test('PATCH /tasks/:id returns 404 for unknown id', async () => {
 
     const app = createApp();
 
-    const created = await request(app).patch('/tasks/does-not-exist').send({
+    const response = await request(app).patch('/tasks/does-not-exist').send({
         status: 'completed'
     }).expect(404).expect('Content-Type', /json/);
 
-    assert.equal(typeof created.body.error, 'string');
+    assert.equal(typeof response.body.error, 'string');
 })
 
 test('PATCH /tasks/:id rejects an unknown status', async () => {
     const app = createApp();
-
-    const created = await request(app).post('/tasks').send({
-        text: 'checking',
-        scheduledAt: '2026-08-08T18:00:00+03:00'
-    }).expect(201).expect('Content-Type', /json/);
-
-    const createdId = created.body.id;
+    const created = await createTask(app);
+    const createdId = created.id;
 
     const statusDoneSend = await request(app).patch(`/tasks/${createdId}`).send({
         status: 'done'
@@ -161,13 +156,8 @@ test('PATCH /tasks/:id rejects an unknown status', async () => {
 
 test('PATCH /tasks/:id rejects a missing status', async () => {
     const app = createApp();
-
-    const created = await request(app).post('/tasks').send({
-        text: 'checking',
-        scheduledAt: '2026-08-08T18:00:00+03:00'
-    }).expect(201).expect('Content-Type', /json/);
-
-    const createdId = created.body.id;
+    const created = await createTask(app);
+    const createdId = created.id;
 
     const noStatusSend = await request(app).patch(`/tasks/${createdId}`).send({})
         .expect(400).expect('Content-Type', /json/);
@@ -178,13 +168,8 @@ test('PATCH /tasks/:id rejects a missing status', async () => {
 test('PATCH /tasks/:id can set status back to pending', async () => {
 
     const app = createApp();
-
-    const created = await request(app).post('/tasks').send({
-        text: 'checking',
-        scheduledAt: '2026-08-08T18:00:00+03:00'
-    }).expect(201).expect('Content-Type', /json/);
-
-    const createdId = created.body.id;
+    const created = await createTask(app);
+    const createdId = created.id;
 
     const setStatusToCompleted = await request(app).patch(`/tasks/${createdId}`).send({
         status: 'completed'
