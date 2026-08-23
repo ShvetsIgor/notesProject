@@ -25,3 +25,11 @@ Content-Type: application/json
 {
   "status": "completed"
 }
+
+### Reject a wrong status
+PATCH http://localhost:3050/tasks/{{taskId}}
+Content-Type: application/json
+
+{
+  "status": "done"
+}

@@ -135,7 +135,74 @@ test('PATCH /tasks/:id returns 404 for unknown id', async () => {
 
     const app = createApp();
 
-    const created = await request(app).patch('/tasks/does-not-exist').expect(404).expect('Content-Type', /json/);
+    const created = await request(app).patch('/tasks/does-not-exist').send({
+        status: 'completed'
+    }).expect(404).expect('Content-Type', /json/);
+
+    assert.equal(typeof created.body.error, 'string');
+})
+
+test('PATCH /tasks/:id rejects an unknown status', async () => {
+    const app = createApp();
+
+    const created = await request(app).post('/tasks').send({
+        text: 'checking',
+        scheduledAt: '2026-08-08T18:00:00+03:00'
+    }).expect(201).expect('Content-Type', /json/);
+
+    const createdId = created.body.id;
+
+    const statusDoneSend = await request(app).patch(`/tasks/${createdId}`).send({
+        status: 'done'
+    }).expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof statusDoneSend.body.error, 'string');
+})
+
+test('PATCH /tasks/:id rejects a missing status', async () => {
+    const app = createApp();
+
+    const created = await request(app).post('/tasks').send({
+        text: 'checking',
+        scheduledAt: '2026-08-08T18:00:00+03:00'
+    }).expect(201).expect('Content-Type', /json/);
+
+    const createdId = created.body.id;
+
+    const noStatusSend = await request(app).patch(`/tasks/${createdId}`).send({})
+        .expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof noStatusSend.body.error, 'string');
+})
+
+test('PATCH /tasks/:id can set status back to pending', async () => {
+
+    const app = createApp();
+
+    const created = await request(app).post('/tasks').send({
+        text: 'checking',
+        scheduledAt: '2026-08-08T18:00:00+03:00'
+    }).expect(201).expect('Content-Type', /json/);
+
+    const createdId = created.body.id;
+
+    const setStatusToCompleted = await request(app).patch(`/tasks/${createdId}`).send({
+        status: 'completed'
+    }).expect(200).expect('Content-Type', /json/);
+
+    const setStatusBackToPending = await request(app).patch(`/tasks/${createdId}`).send({
+        status: 'pending'
+    }).expect(200).expect('Content-Type', /json/);
+
+    assert.equal(setStatusToCompleted.body.status, 'completed')
+    assert.equal(setStatusBackToPending.body.status, 'pending');
+
+})
+
+test('POST /tasks rejects a request without a body', async () => {
+    const app = createApp();
+
+    const created = await request(app).post('/tasks').expect(400).expect('Content-Type', /json/);
 
     assert.equal(typeof created.body.error, 'string');
 })

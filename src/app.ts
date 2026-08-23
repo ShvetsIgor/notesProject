@@ -1,7 +1,7 @@
 import express from 'express';
 import type {Task} from './task.ts';
 import {randomUUID} from 'node:crypto';
-import { isNonEmptyString } from "./validation.ts";
+import {isNonEmptyString, isTaskStatus} from "./validation.ts";
 
 export function createApp() {
 
@@ -13,7 +13,7 @@ export function createApp() {
         response.json(tasks);
     });
     app.post('/tasks', (request, response) => {
-        const {text, scheduledAt}: { text?: unknown, scheduledAt?: unknown } = request.body;
+        const {text, scheduledAt}: { text?: unknown, scheduledAt?: unknown } = request.body ?? {};
 
         if (!isNonEmptyString(text)) {
             return response.status(400).json({error: 'text must be a non-empty string'});
@@ -40,6 +40,11 @@ export function createApp() {
 
     app.patch('/tasks/:id', (request, response) => {
         const {id} = request.params;
+        const {status} = request.body ?? {};
+
+        if (!isTaskStatus(status)) {
+            return response.status(400).json({error: 'status must be either "pending" or "completed"'})
+        }
 
         const task = tasks.find((task) => task.id === id);
 
@@ -47,7 +52,7 @@ export function createApp() {
             return response.status(404).json({error: 'task not found'});
         }
 
-        task.status = 'completed';
+        task.status = status;
         response.json(task);
     })
 
