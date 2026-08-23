@@ -19,13 +19,16 @@ A personal planner for notes and scheduled tasks.
 - Node.js 24
 - npm 11
 - Docker with Compose v2
+- Before start needs to copy an `.env.example` to `.env` and `.env.test` и write the real data.
 
 ## Commands:
 
 - `npm install` installs the dependencies.
 - `npm start` starts the API server.
-- `docker compose up -d` starts the PostgreSQL database in the background.
+- `docker compose up -d --wait` waits if the database is ready and starts the PostgreSQL database in the background.
 - `docker compose down` stops the database and keeps the stored data.
+- `npm run db:migrate` creates the database schema.
+- `npm run db:migrate:test` creates the same schema in the test database.
 - `npm run check` checks the TypeScript types.
 - `npm test` runs the integration tests.
 - `curl -i http://localhost:3050/tasks` sends a manual HTTP request.

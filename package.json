@@ -6,8 +6,9 @@
     "scripts": {
         "check": "tsc",
         "start": "node src/server.ts",
-        "test": "node --test src/app.test.ts",
-        "db:migrate": "node --env-file=.env src/migrate.ts"
+        "test": "node --env-file=.env.test --test src/app.test.ts",
+        "db:migrate": "node --env-file=.env src/migrate.ts",
+        "db:migrate:test": "node --env-file=.env.test src/migrate.ts"
     },
     "devDependencies": {
         "@types/express": "^5.0.6",
