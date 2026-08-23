@@ -6,16 +6,19 @@
     "scripts": {
         "check": "tsc",
         "start": "node src/server.ts",
-        "test": "node --test src/app.test.ts"
+        "test": "node --test src/app.test.ts",
+        "db:migrate": "node --env-file=.env src/migrate.ts"
     },
     "devDependencies": {
         "@types/express": "^5.0.6",
         "@types/node": "^24.13.3",
+        "@types/pg": "^8.23.1",
         "@types/supertest": "^7.2.1",
         "supertest": "^7.2.2",
         "typescript": "^7.0.2"
     },
     "dependencies": {
-        "express": "^5.2.1"
+        "express": "^5.2.1",
+        "pg": "^8.23.0"
     }
 }

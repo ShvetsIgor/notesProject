@@ -2,3 +2,4 @@
 .learning/
 node_modules/
 .idea/
+.env
