@@ -1,35 +1,16 @@
 import express from 'express';
-import type {Task} from './task.ts';
 import {isNonEmptyString, isTaskStatus, isUuid} from "./validation.ts";
 import type {Pool} from "pg";
-import {randomUUID} from "node:crypto";
-
-type TaskRow = {
-    id: string;
-    text: string;
-    scheduled_at: Date;
-    status: Task['status'];
-}
-
-function toTask (row: TaskRow): Task {
-    return {
-        id: row.id,
-        text: row.text,
-        scheduledAt: row.scheduled_at.toISOString(),
-        status: row.status
-    };
-}
+import {createTask, getAllTasks, updateStatus} from "./taskRepository.ts";
 
 export function createApp(pool: Pool) {
 
     const app = express();
     app.use(express.json());
 
-
     app.get('/tasks', async (_request, response) => {
 
-        const result = await pool.query<TaskRow>('SELECT id, text, scheduled_at, status FROM tasks ORDER BY scheduled_at');
-        response.json(result.rows.map(toTask));
+        response.json(await getAllTasks(pool));
     });
 
     app.post('/tasks', async (request, response) => {
@@ -47,12 +28,7 @@ export function createApp(pool: Pool) {
             return response.status(400).json({error: 'scheduledAt must be a valid ISO 8601 date'})
         }
 
-        const result = await pool.query<TaskRow>(
-            'INSERT INTO tasks (id, text, scheduled_at, status) VALUES ($1, $2, $3, $4) RETURNING id, text, scheduled_at, status',
-            [randomUUID(), text, scheduledAt, 'pending']
-        );
-
-        response.status(201).json(toTask(result.rows[0]));
+        response.status(201).json(await createTask(pool, text, scheduledAt));
     })
 
     app.patch('/tasks/:id', async (request, response) => {
@@ -66,16 +42,13 @@ export function createApp(pool: Pool) {
         if (!isUuid(id))
             return response.status(404).json({error: 'format of id is not valid'})
 
-        const result = await pool.query<TaskRow>(
-            'UPDATE tasks SET status = $1 WHERE id = $2 RETURNING id, text, scheduled_at, status',
-            [status, id]
-        );
+        const task = await updateStatus(pool, { status, id });
 
-        if (result.rows.length === 0) {
+        if (task === null) {
             return response.status(404).json({error: 'task not found'});
         }
 
-        response.json(toTask(result.rows[0]));
+        response.json(task);
     })
 
     return app;
