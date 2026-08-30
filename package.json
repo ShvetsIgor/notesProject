@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "check": "tsc",
-        "start": "node src/server.ts",
+        "start": "node --env-file=.env src/server.ts",
         "test": "node --env-file=.env.test --test src/app.test.ts",
         "db:migrate": "node --env-file=.env src/migrate.ts",
         "db:migrate:test": "node --env-file=.env.test src/migrate.ts"

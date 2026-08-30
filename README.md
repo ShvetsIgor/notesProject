@@ -10,7 +10,6 @@ A personal planner for notes and scheduled tasks.
 
 ## Current limitations:
 
-- Tasks are stored in memory and are lost when the server restarts.
 - `text` is checked only as a non-empty string.
 - `scheduledAt` is not required to be in the future, so past dates are accepted.
 
@@ -19,15 +18,15 @@ A personal planner for notes and scheduled tasks.
 - Node.js 24
 - npm 11
 - Docker with Compose v2
-- Before start needs to copy an `.env.example` to `.env` and `.env.test` и write the real data.
+- Copy `.env.example` to `.env` and `.env.test` and set the real values before starting.
 
 ## Commands:
 
 - `npm install` installs the dependencies.
-- `npm start` starts the API server.
-- `docker compose up -d --wait` waits if the database is ready and starts the PostgreSQL database in the background.
-- `docker compose down` stops the database and keeps the stored data.
+- `docker compose up -d --wait` starts the PostgreSQL database in the background and waits until it is ready.
 - `npm run db:migrate` creates the database schema.
+- `npm start` starts the API server.
+- `docker compose down` stops the database and keeps the stored data.
 - `npm run db:migrate:test` creates the same schema in the test database.
 - `npm run check` checks the TypeScript types.
 - `npm test` runs the integration tests.
@@ -39,9 +38,10 @@ A personal planner for notes and scheduled tasks.
 
 ## Contracts:
 
+- All responses return `scheduledAt` in ISO 8601 format in UTC, regardless of the time zone it was sent in.
 - `GET /tasks`, status: `200`, body: `Task[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
 - `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string or is not a valid date
 - `PATCH /tasks/:id`, status: `200`, body: the updated task
-- `PATCH /tasks/:id`, status: `404`, body: `{ "error": string }` when no task has this id
-- `PATCH /tasks/:id`, status: `400`, body: `{ "error": string }` when status is missing or is not "pending" or "completed" 
+- `PATCH /tasks/:id`, status: `404`, body: `{ "error": string }` when the id is not a valid UUID or no task has this id
+- `PATCH /tasks/:id`, status: `400`, body: `{ "error": string }` when status is missing or is not "pending" or "completed"

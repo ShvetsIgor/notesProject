@@ -1,8 +1,10 @@
 import { createApp } from './app.ts';
+import {createPool} from "./db.ts";
 
 const PORT = 3050;
 
-const app = createApp();
+const pool = createPool();
+const app = createApp(pool);
 
 app.listen(PORT, (error) => {
     if (error)

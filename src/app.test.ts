@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, {after, beforeEach} from 'node:test';
 import request from 'supertest';
 import { createApp } from './app.ts';
 import type {Task} from './task.ts';
+import {createPool} from "./db.ts";
+
+const pool = createPool();
+
+beforeEach(() => pool.query('TRUNCATE TABLE tasks'));
+after(() => pool.end());
 
 const validTaskInput = {
     text: 'checking',
@@ -19,7 +25,7 @@ const createTask = async (app: ReturnType<typeof createApp>, overrides = {}) => 
 
 test('GET /tasks returns created task', async () => {
 
-    const app = createApp();
+    const app = createApp(pool);
     const textOfCheck = 'checking';
     const created = await createTask(app);
 
@@ -32,7 +38,7 @@ test('GET /tasks returns created task', async () => {
 })
 
 test('GET /tasks returns an empty list', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app)
     .get('/tasks')
@@ -43,7 +49,7 @@ test('GET /tasks returns an empty list', async () => {
 })
 
 test('POST /tasks creates a pending task', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app)
     .post('/tasks')
@@ -54,20 +60,21 @@ test('POST /tasks creates a pending task', async () => {
         .expect(201)
         .expect('Content-Type', /json/);
 
-    const { id, ...rest } = response.body; 
+    const { id, scheduledAt, ...rest } = response.body;
     
     // The server generates id, so only its type is part of the contract
     assert.equal(typeof id, 'string');
 
+    assert.equal(new Date(scheduledAt).getTime(), new Date('2026-08-08T18:00:00+03:00').getTime())
+
     assert.deepEqual(rest, {
         text: 'Review HTTP contracts',
-        scheduledAt: '2026-08-08T18:00:00+03:00',
         status: 'pending'
     });
 })
 
 test('POST /tasks rejects a request without text', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app).post('/tasks').send({
         scheduledAt: '2026-08-08T18:00:00+03:00'
@@ -77,7 +84,7 @@ test('POST /tasks rejects a request without text', async () => {
 })
 
 test('POST /tasks rejects a non-string text', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app).post('/tasks').send({
         text: 123,
@@ -88,7 +95,7 @@ test('POST /tasks rejects a non-string text', async () => {
 })
 
 test('POST /tasks rejects a request without scheduledAt', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app).post('/tasks').send({
         text: 'checking'
@@ -98,7 +105,7 @@ test('POST /tasks rejects a request without scheduledAt', async () => {
 })
 
 test('POST /tasks rejects a non-string scheduledAt', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app).post('/tasks').send({
         text: 'checking',
@@ -109,7 +116,7 @@ test('POST /tasks rejects a non-string scheduledAt', async () => {
 })
 
 test('POST /tasks rejects an invalid scheduledAt', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app).post('/tasks').send({
         text: 'checking',
@@ -120,7 +127,7 @@ test('POST /tasks rejects an invalid scheduledAt', async () => {
 })
 
 test('PATCH /tasks/:id marks a task as completed', async () => {
-    const app = createApp();
+    const app = createApp(pool);
     const created = await createTask(app);
     const id = created.id;
 
@@ -133,7 +140,7 @@ test('PATCH /tasks/:id marks a task as completed', async () => {
 
 test('PATCH /tasks/:id returns 404 for unknown id', async () => {
 
-    const app = createApp();
+    const app = createApp(pool);
 
     const response = await request(app).patch('/tasks/does-not-exist').send({
         status: 'completed'
@@ -143,7 +150,7 @@ test('PATCH /tasks/:id returns 404 for unknown id', async () => {
 })
 
 test('PATCH /tasks/:id rejects an unknown status', async () => {
-    const app = createApp();
+    const app = createApp(pool);
     const created = await createTask(app);
     const createdId = created.id;
 
@@ -155,7 +162,7 @@ test('PATCH /tasks/:id rejects an unknown status', async () => {
 })
 
 test('PATCH /tasks/:id rejects a missing status', async () => {
-    const app = createApp();
+    const app = createApp(pool);
     const created = await createTask(app);
     const createdId = created.id;
 
@@ -167,7 +174,7 @@ test('PATCH /tasks/:id rejects a missing status', async () => {
 
 test('PATCH /tasks/:id can set status back to pending', async () => {
 
-    const app = createApp();
+    const app = createApp(pool);
     const created = await createTask(app);
     const createdId = created.id;
 
@@ -185,7 +192,7 @@ test('PATCH /tasks/:id can set status back to pending', async () => {
 })
 
 test('POST /tasks rejects a request without a body', async () => {
-    const app = createApp();
+    const app = createApp(pool);
 
     const created = await request(app).post('/tasks').expect(400).expect('Content-Type', /json/);
 
