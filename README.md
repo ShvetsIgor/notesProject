@@ -39,6 +39,8 @@ A personal planner for notes and scheduled tasks.
 ## Contracts:
 
 - All responses return `scheduledAt` in ISO 8601 format in UTC, regardless of the time zone it was sent in.
+- All unknown routes returns status: `404`, body: `{ "error": string }`.
+- Any unexpected error returns status: `500`, body: `{ "error": string }`.
 - `GET /tasks`, status: `200`, body: `Task[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
 - `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string or is not a valid date

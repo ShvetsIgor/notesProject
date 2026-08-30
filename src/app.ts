@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {type Response, type Request, type NextFunction} from 'express';
 import {isNonEmptyString, isTaskStatus, isUuid} from "./validation.ts";
 import type {Pool} from "pg";
 import {createTask, getAllTasks, updateStatus} from "./taskRepository.ts";
@@ -8,8 +8,8 @@ export function createApp(pool: Pool) {
     const app = express();
     app.use(express.json());
 
-    app.get('/tasks', async (_request, response) => {
 
+    app.get('/tasks', async (_request, response) => {
         response.json(await getAllTasks(pool));
     });
 
@@ -19,11 +19,9 @@ export function createApp(pool: Pool) {
         if (!isNonEmptyString(text)) {
             return response.status(400).json({error: 'text must be a non-empty string'});
         }
-
         if (!isNonEmptyString(scheduledAt)) {
             return response.status(400).json({error: 'scheduledAt must be a non-empty string'})
         }
-
         if (Number.isNaN(Date.parse(scheduledAt))) {
             return response.status(400).json({error: 'scheduledAt must be a valid ISO 8601 date'})
         }
@@ -49,6 +47,20 @@ export function createApp(pool: Pool) {
         }
 
         response.json(task);
+    })
+
+    app.use((_request, response) => {
+        response.status(404).json({error: 'route not found'});
+    })
+
+    app.use((error: unknown, request: Request, response: Response, next: NextFunction) => {
+        console.error(error);
+
+        if (response.headersSent) {
+            return next(error);
+        }
+
+        response.status(500).json({error: 'Internal Server Error'});
     })
 
     return app;

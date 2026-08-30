@@ -4,8 +4,13 @@ import request from 'supertest';
 import { createApp } from './app.ts';
 import type {Task} from './task.ts';
 import {createPool} from "./db.ts";
+import type {Pool} from "pg";
 
 const pool = createPool();
+
+const brokenPool = {
+    query: () => Promise.reject(new Error('Database error'))
+} as unknown as Pool;
 
 beforeEach(() => pool.query('TRUNCATE TABLE tasks'));
 after(() => pool.end());
@@ -197,4 +202,22 @@ test('POST /tasks rejects a request without a body', async () => {
     const created = await request(app).post('/tasks').expect(400).expect('Content-Type', /json/);
 
     assert.equal(typeof created.body.error, 'string');
+})
+
+test ('GET /unknown unknown routes return 404 as JSON', async () => {
+    const app = createApp(pool);
+
+    const response = await request(app).get('/unknown').expect(404).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+})
+
+test('GET /tasks returns 500 as JSON when the database fails', async () => {
+
+    const app = createApp(brokenPool);
+
+    const response = await request(app).get('/tasks').expect(500).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string');
+
 })
