@@ -9,6 +9,8 @@ A personal planner for notes and scheduled tasks.
 - TypeScript
 - PostgreSQL
 - Docker
+- Vite
+- React
 
 ### Structure
 
@@ -23,7 +25,12 @@ A personal planner for notes and scheduled tasks.
 - npm install
 - npm run db:migrate
 - npm start
+- open the other terminal
+- cd ../frontend
+- npm install
+- npm run dev
 
 ### Readme
 
 - [Backend](./backend/README.md)
+- [Frontend](./frontend/README.md)

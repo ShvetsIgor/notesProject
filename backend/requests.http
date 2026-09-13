@@ -12,6 +12,17 @@ Content-Type: application/json
 
 > {% client.global.set("taskId", response.body.id); %}
 
+### Create a task
+POST http://localhost:3050/tasks
+Content-Type: application/json
+
+{
+  "text": "Send mail",
+  "scheduledAt": "2026-09-10T09:00:00+03:00"
+}
+
+> {% client.global.set("taskId", response.body.id); %}
+
 ### Reject a task without required fields
 POST http://localhost:3050/tasks
 Content-Type: application/json
