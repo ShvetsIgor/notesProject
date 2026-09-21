@@ -1,37 +1,12 @@
 import {useEffect, useState} from "react";
 import type {Task} from "./task.ts";
-import * as React from "react";
+import TaskList from "./components/TaskList.tsx";
+import TaskForm from "./components/TaskForm.tsx";
 
-function TaskList(props: { items: Task[]; onComplete: (id: string) => void }) {
-    return (
-        <ul className={"grid grid-cols-1 md:grid-cols-2 gap-10"}>
-            {props.items.map((task) => (
-                    <li key={task.id}
-                        className={`border rounded-3xl py-5 px-4 ${task.status === "completed" ? 'bg-gray-100 opacity-60' : 'bg-amber-100'}`}>
-                        <h3>{task.text}</h3>
-                        <time dateTime={task.scheduledAt}
-                              className={'text-sm'}> {new Date(task.scheduledAt).toLocaleString()}</time>
-                        <p> {task.status} </p>
-                        {task.status === 'pending' &&
-                            <button className={"border bg-sky-500 hover:bg-sky-700 text-white rounded-xl px-2 py-1"}
-                                    onClick={() => {
-                                        props.onComplete(task.id)
-                                    }}
-                            >
-                                Completed
-                            </button>}
-                    </li>
-                )
-            )}
-        </ul>
-    )
-}
 
 function App() {
 
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [text, setText] = useState<string>('');
-    const [scheduledAt, setScheduledAt] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
@@ -60,8 +35,8 @@ function App() {
 
     }, [])
 
-    async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
+    async function createTask(text: string, scheduledAt: string) {
+
         setActionError(null);
 
         try {
@@ -80,8 +55,6 @@ function App() {
             }
             const created = await response.json();
             setTasks((prev) => [...prev, created]);
-            setText('');
-            setScheduledAt('');
 
         } catch (e) {
             setActionError("Failed to add a task")
@@ -124,30 +97,7 @@ function App() {
     return (
         <div className={"flex flex-col gap-6 max-w-3xl mx-auto p-6"}>
             <h1 className={"text-2xl font-bold text-center"}>My plans</h1>
-            <form onSubmit={handleSubmit} className={"flex gap-2 items-center"}>
-                    <label> Task
-                        <input
-                            className={"border rounded-xl px-2 py-1 w-full"}
-                            type="text"
-                            value={text}
-                            required={true}
-                            onChange={(event) => setText(event.target.value)}
-                        /></label>
-                    <label> When
-                        <input
-                            className={"border rounded-xl px-2 py-1 w-full"}
-                            type="datetime-local"
-                            value={scheduledAt}
-                            required={true}
-                            onChange={(event) => setScheduledAt(event.target.value)}
-                        />
-                    </label>
-                    <button type={"submit"}
-                            className="bg-sky-500 hover:bg-sky-700 text-white rounded-xl px-4 py-2 whitespace-nowrap">Add
-                        task
-                    </button>
-
-            </form>
+            <TaskForm onCreate={createTask}/>
             <div>
                 {actionError && <p className={"text-red-600"}>{actionError}</p>}
                 {content}
