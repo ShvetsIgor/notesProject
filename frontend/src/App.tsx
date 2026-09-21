@@ -4,17 +4,17 @@ import * as React from "react";
 
 function TaskList(props: { items: Task[]; onComplete: (id: string) => void }) {
     return (
-        <ul>
+        <ul className={"grid grid-cols-1 md:grid-cols-2 gap-10"}>
             {props.items.map((task) => (
-                    <li key={task.id}>
+                    <li key={task.id} className={`border rounded-3xl py-5 px-4 ${task.status === "completed" ? 'bg-gray-100 opacity-60' : 'bg-amber-100'}`}>
                         <p>
                             {task.text} <br/>
                             When: {new Date(task.scheduledAt).toLocaleString()} <br/>
                             Status: '{task.status}'
                         </p>
-                        {task.status === 'pending' && <button onClick={() => {
-                            props.onComplete(task.id)
-                        }}>
+                        {task.status === 'pending' && <button className={"border bg-sky-500 hover:bg-sky-700 text-white rounded-xl px-2 py-1"}
+                            onClick={() => { props.onComplete(task.id) }}
+                        >
                             Completed
                         </button>}
                     </li>
@@ -119,27 +119,30 @@ function App() {
     else content = <TaskList items={tasks} onComplete={completeTask}/>
 
     return (
-        <>
-            <form onSubmit={handleSubmit}>
+        <div className={"flex flex-col gap-6 max-w-3xl mx-auto p-6"}>
+            <h1 className={"text-2xl font-bold text-center"}>My plans</h1>
+            <form onSubmit={handleSubmit} className={"flex gap-2 items-center"}>
                 <input
+                    className={"border rounded-xl px-2 py-1 w-full"}
                     type="text"
                     value={text}
                     required={true}
                     onChange={(event) => setText(event.target.value)}
                 />
                 <input
+                    className={"border rounded-xl px-2 py-1"}
                     type="datetime-local"
                     value={scheduledAt}
                     required={true}
                     onChange={(event) => setScheduledAt(event.target.value)}
                 />
-                <button type={"submit"}>Add task</button>
+                <button type={"submit"} className="bg-sky-500 hover:bg-sky-700 text-white rounded-xl px-4 py-1 whitespace-nowrap">Add task</button>
             </form>
             <div>
-                {actionError && <p>{actionError}</p>}
+                {actionError && <p className={"text-red-600"}>{actionError}</p>}
                 {content}
             </div>
-        </>
+        </div>
 
     )
 }
