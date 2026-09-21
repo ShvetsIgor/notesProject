@@ -1,78 +1,72 @@
-import {test, expect, vi, afterEach} from 'vitest';
+import {test, expect} from 'vitest';
 import {render, screen} from "@testing-library/react";
 import App from "./App.tsx";
 import userEvent from '@testing-library/user-event';
-
-
-const taskFromServer = {
-    id: '11111111-1111-1111-1111-111111111111',
-    text: 'Buy milk',
-    scheduledAt: '2026-09-21T09:00:00.000Z',
-    status: 'pending'
-}
-
-afterEach(() => {
-    vi.unstubAllGlobals()
-});
+import {server} from "./mocks/node.ts";
+import {http, HttpResponse} from "msw";
+import {taskFromServer} from "./mocks/handlers.ts";
 
 test('show tasks loaded from server', async () => {
 
-    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve([taskFromServer])
-        })
-    ))
-
     render(<App/>);
+    expect(await screen.findByText(taskFromServer.text)).toBeInTheDocument();
 
-    expect(await screen.findByText('Buy milk')).toBeInTheDocument();
 })
 
 test('creates a task from the form', async () => {
 
-    const localDateTime = '2026-09-25T18:30'
-    const createdTask = {
-        id: '11111111-1111-1111-1111-111111111111',
-        text: 'Call mom',
-        scheduledAt: localDateTime,
-        status: 'pending',
-    }
+    const localDateTime = '2026-09-25T18:30';
+    const newTaskText = 'Call mom';
+    let requestBody: { text: string, scheduledAt: string } | undefined;
 
-    const fetchMock = vi.fn( (url: string, options?: RequestInit) => {
+    server.use(
+        http.get('/api/tasks', () => HttpResponse.json([])),
+        http.post('/api/tasks', async ( {request}) => {
+            requestBody = await request.json() as { text: string, scheduledAt: string}
 
-        if (options?.method === 'POST') {
-            return Promise.resolve({
-                ok: true,
-                json: () =>  Promise.resolve(createdTask)
-            })
-        }
-
-        return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve([])
+            return HttpResponse.json(
+            { id: '22222222-2222-2222-2222-222222222222', ...requestBody, status: 'pending' },
+            { status: 201 }
+            );
         })
-    })
-
-    vi.stubGlobal('fetch', fetchMock);
+    )
 
     const user = userEvent.setup();
     render(<App/>);
 
     expect(await screen.findByText('No tasks yet. Create your first task')).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText('Task'), 'Call mom');
+    await user.type(screen.getByLabelText('Task'), newTaskText);
     await user.type(screen.getByLabelText('When'), localDateTime);
     await user.click(screen.getByRole('button', { name: 'Add task' }));
 
-    expect(await screen.findByText('Call mom')).toBeInTheDocument();
+    expect(await screen.findByText(newTaskText)).toBeInTheDocument();
+    expect(requestBody?.text).toBe(newTaskText);
+    expect(new Date(requestBody!.scheduledAt).getTime()).toBe(new Date(localDateTime).getTime());
+})
 
-    const postCall = fetchMock.mock.calls.find(([, options]) => options?.method === 'POST');
-    expect(postCall).toBeDefined();
+test('marks the task as completed', async () => {
 
-    const [url, optons] = postCall!;
-    expect(url).toBe('/api/tasks')
+    let requestBody: {status: string} | undefined;
 
-    const body = JSON.parse(optons?.body as string);
-    expect(body.text).toBe('Call mom');
-    expect(new Date(body.scheduledAt).getTime()).toBe(new Date(localDateTime).getTime());
+    server.use(
+        http.patch('/api/tasks/:id', async ({request, params}) => {
+
+            requestBody = await request.json() as { status: string };
+
+            return HttpResponse.json(
+                {...taskFromServer, id: params.id, status: 'completed'}
+            )
+        })
+    )
+
+    const user = userEvent.setup();
+    render(<App/>);
+
+    expect(await screen.findByText(taskFromServer.text)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', {name: 'Completed'}));
+
+    expect(await screen.findByText('completed')).toBeInTheDocument();
+    expect(requestBody?.status).toBe('completed');
 })
