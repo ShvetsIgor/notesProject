@@ -1,6 +1,6 @@
 # Frontend
 
-Web-Client for application `My Plans` 
+Web client for the `My Plans` application, built with React, Vite and Tailwind CSS.
 
 ### Current requirements
 

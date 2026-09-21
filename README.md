@@ -11,6 +11,7 @@ A personal planner for notes and scheduled tasks.
 - Docker
 - Vite
 - React
+- Tailwind CSS
 
 ### Structure
 
