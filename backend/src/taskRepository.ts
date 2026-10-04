@@ -1,5 +1,5 @@
 import type {Pool} from "pg";
-import type {Task} from "./task.ts";
+import type {Task} from "@my-plans/shared";
 import {randomUUID} from "node:crypto";
 
 type TaskRow = {

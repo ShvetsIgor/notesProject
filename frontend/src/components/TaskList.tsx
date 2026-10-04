@@ -1,4 +1,4 @@
-import type {Task} from "../task.ts";
+import type {Task} from "@my-plans/shared";
 
 function TaskList(props: { items: Task[]; onComplete: (id: string) => void }) {
     return (

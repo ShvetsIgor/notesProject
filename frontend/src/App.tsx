@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import type {Task} from "./task.ts";
+import type {Task} from "@my-plans/shared";
 import TaskList from "./components/TaskList.tsx";
 import TaskForm from "./components/TaskForm.tsx";
 

@@ -3,4 +3,4 @@ export type Task = {
     text: string;
     scheduledAt: string;
     status: 'pending' | 'completed';
-} 
+}

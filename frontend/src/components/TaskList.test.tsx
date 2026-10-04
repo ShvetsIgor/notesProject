@@ -1,4 +1,4 @@
-import type {Task} from "../task.ts";
+import type {Task} from "@my-plans/shared";
 import TaskList from "./TaskList.tsx";
 import {render, screen} from "@testing-library/react";
 import {expect, test, vi} from "vitest";

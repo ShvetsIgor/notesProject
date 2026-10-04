@@ -1,9 +1,9 @@
 {
   "name": "my-plans",
   "private": true,
-  "workspaces": ["backend", "frontend"],
+  "workspaces": ["backend", "frontend", "shared"],
   "scripts": {
-    "test": "npm test --workspaces",
+    "test": "npm test --workspaces --if-present",
     "check": "npm run check --workspaces --if-present",
     "start": "npm start -w @my-plans/backend",
     "dev": "npm run dev -w @my-plans/frontend",

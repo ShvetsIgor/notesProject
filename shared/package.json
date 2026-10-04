@@ -1,0 +1,10 @@
+{
+  "name": "@my-plans/shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts"
+    }
+  }
+}

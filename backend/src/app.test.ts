@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test, {after, beforeEach} from 'node:test';
 import request from 'supertest';
 import { createApp } from './app.ts';
-import type {Task} from './task.ts';
+import type {Task} from '@my-plans/shared';
 import {createPool} from "./db.ts";
 import type {Pool} from "pg";
 
