@@ -1,5 +1,5 @@
 import express, {type Response, type Request, type NextFunction} from 'express';
-import {isNonEmptyString, isTaskStatus, isUuid} from "./validation.ts";
+import {isFutureDate, isNonEmptyString, isTaskStatus, isUuid} from "./validation.ts";
 import type {Pool} from "pg";
 import {createTask, getAllTasks, updateStatus} from "./taskRepository.ts";
 
@@ -24,6 +24,10 @@ export function createApp(pool: Pool) {
         }
         if (Number.isNaN(Date.parse(scheduledAt))) {
             return response.status(400).json({error: 'scheduledAt must be a valid ISO 8601 date'})
+        }
+
+        if (!isFutureDate(scheduledAt)) {
+            return response.status(400).json({error: 'scheduledAt must be in future'})
         }
 
         response.status(201).json(await createTask(pool, text, scheduledAt));

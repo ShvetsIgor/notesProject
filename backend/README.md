@@ -9,7 +9,6 @@
 ### Current limitations:
 
 - `text` is checked only as a non-empty string.
-- `scheduledAt` is not required to be in the future, so past dates are accepted.
 
 ### Current requirements:
 
@@ -39,9 +38,10 @@
 - All responses return `scheduledAt` in ISO 8601 format in UTC, regardless of the time zone it was sent in.
 - All unknown routes returns status: `404`, body: `{ "error": string }`.
 - Any unexpected error returns status: `500`, body: `{ "error": string }`.
+- `scheduledAt` must be in the future, with a one-minute tolerance for the time spent filling the form.
 - `GET /tasks`, status: `200`, body: `Task[]`
 - `POST /tasks`, status: `201`, request: user sends text and scheduledAt entries, body: new task object with id in UUID format and status `pending`
-- `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string or is not a valid date
+- `POST /tasks`, status: `400`, body: `{ "error": string }` when `text` or `scheduledAt` is missing or is not a string, `scheduledAt` is not a valid date or is in the past
 - `PATCH /tasks/:id`, status: `200`, body: the updated task
 - `PATCH /tasks/:id`, status: `404`, body: `{ "error": string }` when the id is not a valid UUID or no task has this id
 - `PATCH /tasks/:id`, status: `400`, body: `{ "error": string }` when status is missing or is not "pending" or "completed"

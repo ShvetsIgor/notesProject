@@ -17,7 +17,7 @@ after(() => pool.end());
 
 const validTaskInput = {
     text: 'checking',
-    scheduledAt: '2026-08-08T18:00:00+03:00'
+    scheduledAt: new Date(Date.now()+24*60*60*1000).toISOString()
 };
 
 const createTask = async (app: ReturnType<typeof createApp>, overrides = {}) => {
@@ -56,11 +56,13 @@ test('GET /tasks returns an empty list', async () => {
 test('POST /tasks creates a pending task', async () => {
     const app = createApp(pool);
 
+    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
     const response = await request(app)
     .post('/tasks')
     .send({
         text: 'Review HTTP contracts',
-        scheduledAt: '2026-08-08T18:00:00+03:00'
+        scheduledAt: futureDate
     })
         .expect(201)
         .expect('Content-Type', /json/);
@@ -70,7 +72,7 @@ test('POST /tasks creates a pending task', async () => {
     // The server generates id, so only its type is part of the contract
     assert.equal(typeof id, 'string');
 
-    assert.equal(new Date(scheduledAt).getTime(), new Date('2026-08-08T18:00:00+03:00').getTime())
+    assert.equal(new Date(scheduledAt).getTime(), new Date(futureDate).getTime())
 
     assert.deepEqual(rest, {
         text: 'Review HTTP contracts',
@@ -81,8 +83,10 @@ test('POST /tasks creates a pending task', async () => {
 test('POST /tasks rejects a request without text', async () => {
     const app = createApp(pool);
 
+    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
     const response = await request(app).post('/tasks').send({
-        scheduledAt: '2026-08-08T18:00:00+03:00'
+        scheduledAt: futureDate
     }).expect(400).expect('Content-Type', /json/);
 
     assert.equal(typeof response.body.error, 'string');
@@ -91,9 +95,11 @@ test('POST /tasks rejects a request without text', async () => {
 test('POST /tasks rejects a non-string text', async () => {
     const app = createApp(pool);
 
+    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
     const response = await request(app).post('/tasks').send({
         text: 123,
-        scheduledAt: '2026-08-08T18:00:00+03:00'
+        scheduledAt: futureDate
     }).expect(400).expect('Content-Type', /json/);
 
     assert.equal(typeof response.body.error, 'string');
@@ -220,4 +226,17 @@ test('GET /tasks returns 500 as JSON when the database fails', async () => {
 
     assert.equal(typeof response.body.error, 'string');
 
+})
+
+test('POST /tasks returns 400 for past time at the task', async () => {
+
+    const app = createApp(pool);
+
+    const response = await request(app).post('/tasks').send({
+        text: 'Past task',
+        scheduledAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    })
+        .expect(400).expect('Content-Type', /json/);
+
+    assert.equal(typeof response.body.error, 'string')
 })

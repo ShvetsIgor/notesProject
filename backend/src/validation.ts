@@ -13,3 +13,10 @@ export function isTaskStatus(value: unknown): value is Task['status'] {
 export function isUuid(value: unknown): value is string {
     return typeof value === "string" && UUID_PATTERN.test(value);
 }
+
+export function isFutureDate(value: string): boolean {
+
+    const toleranceMs = 60 * 1000;
+
+    return Date.parse(value) > Date.now() - toleranceMs;
+}
