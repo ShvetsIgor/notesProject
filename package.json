@@ -1,0 +1,17 @@
+{
+  "name": "my-plans",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "test": "npm test --workspaces",
+    "check": "npm run check --workspaces --if-present",
+    "start": "npm start -w @my-plans/backend",
+    "dev": "npm run dev -w @my-plans/frontend",
+    "db:migrate": "npm run db:migrate -w @my-plans/backend",
+    "db:migrate:test": "npm run db:migrate:test -w @my-plans/backend",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d --wait",
+    "setup": "npm run db:up && npm run db:migrate && npm run db:migrate:test"
+  }
+}
