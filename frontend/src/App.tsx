@@ -55,10 +55,12 @@ function App() {
             }
             const created = await response.json();
             setTasks((prev) => [...prev, created]);
+            return true;
 
         } catch (e) {
             setActionError("Failed to add a task")
             console.error(e)
+            return false
         }
     }
 
